@@ -2,6 +2,7 @@ package com.vijay.OrgCalendar.controller;
 
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.vijay.OrgCalendar.exception.EmployeeAlreadyPresentException;
+import com.vijay.OrgCalendar.exception.NoMeetingsForEmployeeException;
 import com.vijay.OrgCalendar.request.EmployeeRequest;
 import com.vijay.OrgCalendar.request.MeetingRequest;
 import com.vijay.OrgCalendar.service.MeetingService;
@@ -41,7 +42,12 @@ public class MeetingController {
 	
 	@GetMapping(path = "/getMeetings")
 	ResponseEntity<?> getMeetings(@RequestParam(value = "employee") String employee) {
-		return new ResponseEntity<>(meetingService.getMeetingsForEmployee(employee), HttpStatus.OK);
+		try {
+			return new ResponseEntity<>(meetingService.getMeetingsForEmployee(employee), HttpStatus.OK);
+		} catch(NoMeetingsForEmployeeException e){
+			JSONPObject response = new JSONPObject("message", e.getMessage());
+			return ResponseEntity.badRequest().body(response);
+		}
 	}
 	
 	@GetMapping(path = "/getMeetingRoomCount")
