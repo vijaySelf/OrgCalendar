@@ -3,6 +3,7 @@ package com.vijay.OrgCalendar.service;
 import com.vijay.OrgCalendar.domain.Employee;
 import com.vijay.OrgCalendar.domain.Meeting;
 import com.vijay.OrgCalendar.domain.MeetingScheduler;
+import com.vijay.OrgCalendar.exception.EmployeeAlreadyPresentException;
 import com.vijay.OrgCalendar.request.EmployeeRequest;
 import com.vijay.OrgCalendar.request.MeetingRequest;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,15 @@ public class MeetingServiceImpl implements MeetingService{
 		
 		for(Meeting meeting : meetingList){
 			if(meeting.getMeetingId().equals(employeeRequest.getMeetingId())){
+				
+				List<Employee> employeesPresent  = meeting.getAttendees();
+				
+				for(Employee employee : employeesPresent){
+					if(employee.getName().equalsIgnoreCase(employeeRequest.getName())){
+						throw new EmployeeAlreadyPresentException(employeeRequest.getName() +" already present in meeting "+employeeRequest.getMeetingId());
+					}
+				}
+				
 				Employee employee = new Employee();
 				employee.setId(employeeRequest.getEmployeeId());
 				employee.setName(employeeRequest.getName());
